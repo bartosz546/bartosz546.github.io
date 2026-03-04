@@ -1934,6 +1934,7 @@ ul.actions li:first-child {
     height: 100%;
     border: 1px solid #bfedc5;
     overflow: hidden;
+    cursor: pointer;
 }
 
 .box:hover {
