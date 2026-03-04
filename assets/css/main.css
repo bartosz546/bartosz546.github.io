@@ -1623,7 +1623,6 @@ article:last-child {
     left: 50%;
     transform: translateX(-50%);
     box-shadow: 0 0 50px rgba(0, 191, 165, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.6);
-    border: 1px solid #e6ffe9;
     width: 150px;
     height: 75px;
     border-radius: 80px 80px 0 0;
@@ -1636,19 +1635,18 @@ article:last-child {
 }
 
 .sticky-button:hover {
-    border: 1px solid #3ef36d;
     background: linear-gradient(180deg, rgba(24, 201, 100, 0.18), rgba(8, 18, 31, 0.6));
     color: #fff !important;
 
     .arrow {
         border: solid #a5ebb6;
-        border-width: 0 3px 3px 0;
+        border-width: 0 2px 2px 0;
     }
 }
 
 .arrow {
     border: solid white;
-    border-width: 0 3px 3px 0;
+    border-width: 0 2px 2px 0;
     display: inline-block;
     padding: 10px;
     transform: rotate(45deg);
@@ -1933,6 +1931,8 @@ ul.actions li:first-child {
     text-align: center;
     padding: 2em;
     height: 100%;
+    border: 1px solid #bfedc5;
+    overflow: hidden;
 }
 
 .box:hover {
@@ -2036,6 +2036,7 @@ ul.actions li:first-child {
 
 .wrapper.style3 {
     background-color: #070907;
+    color: #fff;
 }
 
 .wrapper.style4 {
@@ -2320,7 +2321,7 @@ body > article {
     }
 
     h1, h2, h3, h4, h5, h6 {
-        font-size: 1.25em;
+        font-size: 1.5em;
         margin: 0 0 0.4em 0;
     }
 
@@ -2472,7 +2473,7 @@ body > article {
     }
 
     #top p {
-        font-size: 1em;
+        font-size: 1.25em;
     }
 
     #contact footer {
