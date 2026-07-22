@@ -210,6 +210,28 @@ Behavior (pure CSS, layers on top of Task 15's `.card-image img` hover-zoom — 
 - On hover: filter fades back to normal color (`filter: none`) over the same kind of smooth transition already used for the zoom, so color and zoom animate together.
 - `prefers-reduced-motion`: filter/color still changes on hover, just without an animated transition (consistent with the project's established reduced-motion pattern elsewhere).
 
+## Task 19 — Project card external links
+
+Each project card (`src/app/components/projects/`) should link out to its real project/store/repo page. `Project` gets an optional `link?: string` field; the whole card becomes a clickable link (`target="_blank" rel="noopener noreferrer"`) when a link is present, keeping all existing hover behavior (tilt, corner reticle, image zoom/color reveal) unchanged. Cards without a link stay as plain non-interactive cards (no href = no navigation, not a fabricated placeholder URL).
+
+Verbatim URLs (13 of 15 projects — `Hive Stone` and `To The Mars` have no URL yet and must NOT be guessed):
+
+| Project | URL |
+|---|---|
+| Visit Pieniny | https://bartosz546.github.io/visit-niedzica-webpage/ |
+| Provably Fair Certification Standard | https://www.provablyfair.org |
+| Position List — Q88 (Android) | https://play.google.com/store/apps/details?id=com.q88.qotf |
+| Position List — Q88 (iOS) | https://apps.apple.com/us/app/position-list-q88/id1227401979 |
+| Dapp Connect | https://dapp-connects.com |
+| Q88 | https://veson.com/products/q88 |
+| Lost Relics — Slot Game | https://games.evolution.com/slots/lost-relics |
+| STEEM Secure Login | https://github.com/bartosz546/Steem-Secure-Login-Browsers-Extensions |
+| Provably Fair Lottery | https://cardanocasino.com/en/lottery |
+| Crypto Miner | https://crypto-miner-client.hiveslotgames.com/?steemAccountName=FUN_MODE_g9u1nt&funMode=true |
+| European Roulette | https://european-roulette-client.hiveslotgames.com/?steemAccountName=FUN_MODE_g9u1nt&funMode=true |
+| Video Poker | https://video-poker-client.hiveslotgames.com/?steemAccountName=FUN_MODE_g9u1nt&funMode=true |
+| Blackjack | https://blackjack-client.hiveslotgames.com/?steemAccountName=FUN_MODE_g9u1nt&funMode=true |
+
 ## Definition of done (per task)
 - Implementation matches this spec (pixel-for-pixel on visuals/copy/data, per Fidelity above).
 - Code reviewer findings resolved (non-trivial ones re-implemented).

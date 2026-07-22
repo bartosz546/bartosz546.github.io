@@ -6,13 +6,17 @@
 
   <div class="grid">
     @for (card of cards; track card.project.name) {
-      <div
+      <a
         class="card"
         #cardRevealEl
         [style.transform]="card.transform()"
         [style.boxShadow]="card.shadow()"
         (mousemove)="onCardMouseMove(card, $event)"
         (mouseleave)="onCardMouseLeave(card)"
+        [attr.href]="card.project.link"
+        target="_blank"
+        rel="noopener noreferrer"
+        [attr.aria-label]="card.project.name"
       >
         <div class="card-image">
           <img [ngSrc]="'assets/' + card.project.image" [alt]="card.project.name" fill />
@@ -26,7 +30,7 @@
         <span class="corner corner-tr" aria-hidden="true"></span>
         <span class="corner corner-bl" aria-hidden="true"></span>
         <span class="corner corner-br" aria-hidden="true"></span>
-      </div>
+      </a>
     }
   </div>
 </section>

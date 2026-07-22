@@ -103,6 +103,12 @@
 - Applied `hue-rotate(165deg)` (was 190deg), all other filter values (`sepia(80%)`, `saturate(500%)`, `brightness(0.7)`, `contrast(1.1)`) unchanged. Reviewer independently re-verified the value and the HSL/oklch hue-family reasoning. Confirmed live via computed style before/after.
 - Tests/build: PASS (41/41 tests).
 
+## Task 19 — Project card external links — COMPLETE
+- User provided 13 URLs for the 15 projects. Flagged upfront (not guessed): `Hive Stone` and `To The Mars` have no URL, so those two cards are left non-interactive until provided.
+- Added optional `link?: string` to the `Project` model; populated the 13 matching entries in `project.data.ts`. Converted `.card` from `<div>` to `<a>` (keeping all existing tilt/reveal/corner-bracket bindings unchanged), added `target="_blank" rel="noopener noreferrer"` and `[attr.aria-label]="card.project.name"`; added `color: inherit` to `.card`'s CSS to stop the global anchor-teal color rule from leaking onto card titles.
+- Reviewer caught a real, confirmed bug: `[href]="card.project.link"` (property binding) doesn't omit the attribute for `undefined` — verified live that Hive Stone/To The Mars became focusable, clickable, self-navigating links pointing at the current page. Fixed by switching to `[attr.href]="card.project.link"` (attribute binding), which correctly omits the attribute entirely for undefined values. Re-verified live: 13 cards resolve correct hrefs, the 2 link-less cards have no `href` attribute and reject `.focus()` calls (confirmed non-interactive despite a Chromium `tabIndex` reporting quirk).
+- Tests/build: PASS (41/41 tests).
+
 ## ALL TASKS COMPLETE
 All 11 tasks (1-11; infrastructure Task I1 was N/A — already on latest Angular) from prd.md are implemented, reviewed, tested, and logged. The Bartosz Kurek portfolio site (design-handoff spec) is fully built: Nav, Hero, TechMarquee, Experience, Stats, Projects, Contact — responsive, accessible (100/100 Lighthouse a11y), and performance-audited.
 

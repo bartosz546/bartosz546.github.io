@@ -41,6 +41,8 @@ h2 {
 }
 
 .card {
+  display: block;
+  color: inherit;
   position: relative;
   background: var(--color-surface);
   border: var(--border-card);

@@ -3,4 +3,5 @@ export interface Project {
   tag: string;
   name: string;
   blurb: string;
+  link?: string;
 }
