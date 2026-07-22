@@ -163,6 +163,21 @@ Each task below is implemented independently via the subagent workflow in [CLAUD
 10. **Global responsive & accessibility polish** — Responsive breakpoints across all sections (mobile/tablet/desktop grid collapses), alt text audit, contrast check, `prefers-reduced-motion` handling, keyboard nav check.
 11. **Performance pass** — Lighthouse run on the built app, fix findings (image sizing/lazy-loading, font loading strategy, etc.) to reach ≥90 performance/accessibility.
 
+## Task 12 — Cipher/decode text reveal animation (Hero badge)
+
+Applies to the badge in the Hero section (`src/app/components/hero/hero.html`):
+```html
+<div class="badge"><span class="dot"></span><span><strong>This entire site was built in 2 hours</strong> — designed with Claude Code, translated to Angular, and published.</span></div>
+```
+
+Behavior:
+- On page load, the badge's text content (both the bold lead-in and the rest of the sentence) initially renders as random characters/numbers/symbols (e.g. `!x$9 #k...`), same length/word-spacing as the real text so layout doesn't shift.
+- ~2 seconds after load, over ~1–1.5 seconds, characters rapidly cycle and lock in sequentially left-to-right to reveal the real text.
+- After holding the real text for a few seconds, it ciphers back to random characters — this "hide" animation runs over the same duration as `REVEALING_DURATION_MS`, but in reverse: characters re-scramble starting from the LAST character back to the front (the reveal boundary sweeps right-to-left, mirroring the left-to-right reveal).
+- Once fully ciphered again, hold for ~5 seconds before decoding again. The whole cycle loops continuously: scrambled (initial ~2s hold) → reveal (left-to-right) → hold revealed (~3.5s) → hide (right-to-left re-cipher, same duration as reveal) → hold ciphered (~5s) → reveal again → ... (repeats indefinitely).
+- Respect `prefers-reduced-motion`: show the real text immediately with no cipher/scramble effect.
+- Implemented as an Angular standalone-component-idiomatic effect (signal-driven, not direct DOM string mutation via jQuery-style code), scoped to the Hero component — not a reusable directive/service unless that emerges naturally as the cleanest implementation.
+
 ## Definition of done (per task)
 - Implementation matches this spec (pixel-for-pixel on visuals/copy/data, per Fidelity above).
 - Code reviewer findings resolved (non-trivial ones re-implemented).

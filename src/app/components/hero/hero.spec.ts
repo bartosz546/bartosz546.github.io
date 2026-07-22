@@ -83,4 +83,177 @@ describe('Hero', () => {
     expect(hero.orb1Transform()).toBe('translate(0px, 0px)');
     expect(hero.orb2Transform()).toBe('translate(0px, 0px)');
   });
+
+  describe('cipher/decode badge animation', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('pickRandomChar returns a char from the cipher pool for a stubbed rng', () => {
+      const fixture = TestBed.createComponent(Hero);
+      const hero = fixture.componentInstance as any;
+      const pool = '!@#$%^&*_+-=<>?/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+
+      const first = hero.pickRandomChar(() => 0);
+      const last = hero.pickRandomChar(() => 0.9999999);
+
+      expect(pool).toContain(first);
+      expect(pool).toContain(last);
+      expect(first).toBe(pool[0]);
+      expect(last).toBe(pool[pool.length - 1]);
+    });
+
+    it('buildDisplayText reveals characters before revealedCount and ciphers the rest, keeping spaces literal', () => {
+      const fixture = TestBed.createComponent(Hero);
+      const hero = fixture.componentInstance as any;
+      const target = 'Hi there';
+      const randomChar = () => '#';
+
+      const result = hero.buildDisplayText(target, 3, randomChar);
+
+      // "Hi " -> indices 0,1,2 revealed ("H","i"," ") ; index 2 is a space anyway.
+      expect(result).toBe('Hi #####');
+      for (let i = 0; i < target.length; i++) {
+        if (target[i] === ' ') {
+          expect(result[i]).toBe(' ');
+        } else if (i < 3) {
+          expect(result[i]).toBe(target[i]);
+        } else {
+          expect(result[i]).toBe('#');
+        }
+      }
+    });
+
+    it('buildDisplayText with revealedCount 0 ciphers all non-space characters', () => {
+      const fixture = TestBed.createComponent(Hero);
+      const hero = fixture.componentInstance as any;
+      const target = 'ab cd';
+
+      const result = hero.buildDisplayText(target, 0, () => '#');
+
+      expect(result).toBe('## ##');
+    });
+
+    it('ngOnInit sets the full real text immediately and does not start an interval when prefers-reduced-motion is set', () => {
+      mockMatchMedia(true);
+      vi.useFakeTimers();
+      const setIntervalSpy = vi.spyOn(globalThis, 'setInterval');
+
+      const fixture = TestBed.createComponent(Hero);
+      const hero = fixture.componentInstance as any;
+      // Triggers Angular's normal (deduped) first change detection, which runs ngOnInit exactly once.
+      fixture.detectChanges();
+
+      const fullText =
+        'This entire site was built in 4 hours — designed with Claude Code, translated to Angular, and published.';
+      expect(hero.badgeText()).toBe(fullText);
+      expect(setIntervalSpy).not.toHaveBeenCalled();
+
+      vi.advanceTimersByTime(10000);
+      expect(hero.badgeText()).toBe(fullText);
+    });
+
+    it('ngOnInit starts scrambled and eventually reveals the full text over time when motion is allowed', () => {
+      mockMatchMedia(false);
+      vi.useFakeTimers();
+
+      const fixture = TestBed.createComponent(Hero);
+      const hero = fixture.componentInstance as any;
+      fixture.detectChanges();
+
+      const fullText =
+        'This entire site was built in 2 hours — designed with Claude Code, translated to Angular, and published.';
+
+      // Immediately scrambled: same length, not equal to the real text.
+      expect(hero.badgeText().length).toBe(fullText.length);
+      expect(hero.badgeText()).not.toBe(fullText);
+
+      // Past scrambled (2000ms) + revealing (1200ms) duration, text should be fully revealed.
+      vi.advanceTimersByTime(3300);
+      expect(hero.badgeText()).toBe(fullText);
+
+      fixture.destroy();
+    });
+
+    it('buildDisplayText with a decreasing revealedCount ciphers trailing characters first, mirroring the hiding sweep', () => {
+      const fixture = TestBed.createComponent(Hero);
+      const hero = fixture.componentInstance as any;
+      const target = 'Hi there';
+      const randomChar = () => '#';
+
+      // Simulate the "hiding" sweep: revealedCount shrinks from target.length down to 0.
+      const full = hero.buildDisplayText(target, target.length, randomChar);
+      const mid = hero.buildDisplayText(target, 3, randomChar);
+      const none = hero.buildDisplayText(target, 0, randomChar);
+
+      expect(full).toBe(target);
+      // With revealedCount 3: front characters ("Hi ") stay real, trailing become the stub char.
+      expect(mid).toBe('Hi #####');
+      // With revealedCount 0: only the literal space survives, everything else is ciphered.
+      expect(none).toBe('## #####');
+    });
+
+    it('advances revealed -> hiding -> scrambled (with 5s hold) -> revealing without getting stuck', () => {
+      mockMatchMedia(false);
+      vi.useFakeTimers();
+
+      const fixture = TestBed.createComponent(Hero);
+      const hero = fixture.componentInstance as any;
+      fixture.detectChanges();
+
+      const fullText =
+        'This entire site was built in 2 hours — designed with Claude Code, translated to Angular, and published.';
+
+      // Reach "revealed": scrambled (1000ms) + revealing (1400ms).
+      vi.advanceTimersByTime(2400 + 50);
+      expect(hero.badgeText()).toBe(fullText);
+      expect(hero.phase).toBe('revealed');
+
+      // Reach "hiding": revealed hold (10000ms).
+      vi.advanceTimersByTime(10000 + 50);
+      expect(hero.phase).toBe('hiding');
+
+      // Partway through hiding, text should no longer be fully revealed nor fully random.
+      vi.advanceTimersByTime(700);
+      expect(hero.badgeText().length).toBe(fullText.length);
+      expect(hero.badgeText()).not.toBe(fullText);
+
+      // Finish hiding (1400ms total) -> should land back in "scrambled" using the 5s hidden hold.
+      vi.advanceTimersByTime(1400);
+      expect(hero.phase).toBe('scrambled');
+      expect(hero.scrambledHoldMs).toBe(hero.HIDDEN_HOLD_DURATION_MS);
+      expect(hero.scrambledHoldMs).toBe(5000);
+
+      // Confirm it stays scrambled before the 5s hold elapses...
+      vi.advanceTimersByTime(3000);
+      expect(hero.phase).toBe('scrambled');
+
+      // ...and transitions to "revealing" once the 5s hold elapses, eventually reaching "revealed" again.
+      vi.advanceTimersByTime(2000 + 50);
+      expect(hero.phase).toBe('revealing');
+
+      vi.advanceTimersByTime(1400 + 50);
+      expect(hero.phase).toBe('revealed');
+      expect(hero.badgeText()).toBe(fullText);
+
+      fixture.destroy();
+    });
+
+    it('ngOnDestroy clears the interval so no further badgeText changes occur', () => {
+      mockMatchMedia(false);
+      vi.useFakeTimers();
+      const clearIntervalSpy = vi.spyOn(globalThis, 'clearInterval');
+
+      const fixture = TestBed.createComponent(Hero);
+      const hero = fixture.componentInstance as any;
+      fixture.detectChanges();
+
+      fixture.destroy();
+      expect(clearIntervalSpy).toHaveBeenCalled();
+
+      const textAfterDestroy = hero.badgeText();
+      vi.advanceTimersByTime(10000);
+      expect(hero.badgeText()).toBe(textAfterDestroy);
+    });
+  });
 });

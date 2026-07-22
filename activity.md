@@ -53,6 +53,21 @@
 - Also cleaned up a stray `lighthouse-report.json` left in the repo root and added it to `.gitignore`.
 - Reviewer re-reviewed and approved. Tests/build: PASS (18/18).
 
+## Task 12 — Cipher/decode text reveal animation (Hero badge) — COMPLETE
+- Added to prd.md as a new task (user request, outside the original 11-task breakdown).
+- Implemented a signal-driven state machine in `Hero`: 2s scrambled → 1.2s left-to-right sequential reveal with flicker on unrevealed chars → 3.5s holding real text → loops indefinitely. Core scramble/reveal logic extracted as pure, testable methods (`pickRandomChar`, `buildDisplayText`); literal spaces never scramble so layout stays stable; bold/plain split preserved via string slicing in the template. Respects `prefers-reduced-motion` (shows real text immediately, no interval created).
+- Developer found and fixed a real regression while adding tests: `Hero.ngOnInit` now calls `matchMedia` unconditionally, which crashed `app.spec.ts` in jsdom (no `matchMedia` there) — added a global polyfill in `src/test-setup.ts`, guarded so it doesn't override any test's local mock.
+- Reviewer hand-traced the state machine for off-by-one/stuck-phase bugs, verified text reconstruction and the test-setup change's blast radius: no non-trivial findings, approved.
+- Live browser check: confirmed scrambled initial state, a mid-reveal frame (left portion locked to real text, right portion still scrambling), and an exact full-text match at completion. Couldn't observe a full loop cycle live because the browser pane was in a backgrounded/hidden state in this tool session (confirmed via `document.hidden` and a tool timeout message), which throttles timers — an environment artifact, not an app bug; the re-scramble transition was independently verified correct by code review.
+- Tests/build: PASS (24/24 tests).
+
+## Task 13 — Refine cipher animation: reverse hide + 5s ciphered hold — COMPLETE
+- User request: after the revealed hold, cipher the badge text back over the same duration as `REVEALING_DURATION_MS`, sweeping right-to-left (last character re-scrambles first, front stays real longest), then hold fully ciphered ~5s before the next reveal.
+- Added a `'hiding'` phase to Hero's state machine (`scrambled → revealing → revealed → hiding → scrambled → ...`), implemented by reusing the existing `buildDisplayText` pure function unchanged — the reverse sweep comes purely from decreasing `revealedCount` over time instead of increasing it. Added `HIDDEN_HOLD_DURATION_MS=5000` and a `scrambledHoldMs` field so only the very first page-load hold stays short; every subsequent loop iteration holds ciphered for 5s.
+- Important: discovered the file's three original duration constants had been hand-tuned by the user (1000/1400/10000ms) since Task 12 finished, differing from what was originally implemented (2000/1200/3500ms) — explicitly instructed the developer NOT to touch those, only add the new phase on top of whatever values were already there.
+- Reviewer hand-traced the full loop and the hiding-phase math, confirmed correct sweep direction, no stuck/skipped phases, and confirmed the protected constants were untouched. Approved.
+- Tests/build: PASS (26/26 tests).
+
 ## ALL TASKS COMPLETE
 All 11 tasks (1-11; infrastructure Task I1 was N/A — already on latest Angular) from prd.md are implemented, reviewed, tested, and logged. The Bartosz Kurek portfolio site (design-handoff spec) is fully built: Nav, Hero, TechMarquee, Experience, Stats, Projects, Contact — responsive, accessible (100/100 Lighthouse a11y), and performance-audited.
 

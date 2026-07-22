@@ -22,3 +22,19 @@ class IntersectionObserverStub implements IntersectionObserver {
 if (typeof globalThis.IntersectionObserver === 'undefined') {
   globalThis.IntersectionObserver = IntersectionObserverStub as unknown as typeof IntersectionObserver;
 }
+
+// jsdom does not implement matchMedia. Default to "no preference" (motion allowed);
+// individual specs may override window.matchMedia to simulate prefers-reduced-motion.
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'undefined') {
+  window.matchMedia = (query: string) =>
+    ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    }) as MediaQueryList;
+}

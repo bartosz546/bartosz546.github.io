@@ -7,7 +7,10 @@
     <h1>Speed of AI.<br />Judgment of <span class="accent">a decade.</span></h1>
     <p class="bio">I'm <strong>Bartosz Kurek</strong>, a software engineer who pairs modern AI tooling with 10+ years of production experience — shipping AI agent evaluation frameworks, enterprise maritime platforms, and blockchain systems that don't break.</p>
     <p class="meta">10+ years shipping · Warsaw, Poland (Remote)</p>
-    <div class="badge"><span class="dot"></span><span><strong>This entire site was built in 2 hours</strong> — designed with Claude Code, translated to Angular, and published.</span></div>
+    <div class="badge">
+      <span class="dot"></span>
+      <span><strong>{{ badgeText().slice(0, badgeLeadLength) }}</strong>{{ badgeText().slice(badgeLeadLength) }}</span>
+    </div>
     <div class="cta-row">
       <a class="btn btn-solid" href="mailto:Bartosz546@gmail.com">Email me →</a>
       <a class="btn btn-outline" href="https://www.linkedin.com/in/bartosz546/" target="_blank" rel="noopener">LinkedIn</a>
