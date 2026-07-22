@@ -1,0 +1,10 @@
+<section>
+  <div class="grid">
+    @for (stat of stats; track stat.label) {
+      <div class="stat" #revealEl>
+        <p class="value">{{ stat.value }}</p>
+        <p class="label">{{ stat.label }}</p>
+      </div>
+    }
+  </div>
+</section>

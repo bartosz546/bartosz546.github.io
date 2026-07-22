@@ -1,0 +1,28 @@
+<section id="work">
+  <div class="reveal-heading" #revealEl>
+    <p class="eyebrow">CHAPTER 03 · SELECTED WORK</p>
+    <h2>Real projects. <span class="muted">Real production.</span></h2>
+  </div>
+
+  <div class="grid">
+    @for (card of cards; track card.project.name) {
+      <div
+        class="card"
+        #cardRevealEl
+        [style.transform]="card.transform()"
+        [style.boxShadow]="card.shadow()"
+        (mousemove)="onCardMouseMove(card, $event)"
+        (mouseleave)="onCardMouseLeave(card)"
+      >
+        <div class="card-image">
+          <img [ngSrc]="'assets/' + card.project.image" [alt]="card.project.name" fill />
+        </div>
+        <div class="body">
+          <p class="tag">{{ card.project.tag }}</p>
+          <h3>{{ card.project.name }}</h3>
+          <p class="blurb">{{ card.project.blurb }}</p>
+        </div>
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,26 @@
+<section id="experience">
+  <div class="reveal-heading" #revealEl>
+    <p class="eyebrow">CHAPTER 02 · CAREER</p>
+    <h2>Ten years <span class="muted">of shipping.</span></h2>
+  </div>
+
+  <div class="timeline">
+    <div class="track" #trackEl>
+      <div class="fill" [style.height.%]="progress()"></div>
+    </div>
+
+    @for (job of entries; track job.company) {
+      <div class="entry" #revealEl>
+        <span class="dot"></span>
+        <p class="meta">{{ job.dates }} · {{ job.location }}</p>
+        <h3>{{ job.role }} <span class="company">{{ job.company }}</span></h3>
+        <p class="blurb">{{ job.blurb }}</p>
+        <div class="tags">
+          @for (tag of job.tags; track tag) {
+            <span class="tag">{{ tag }}</span>
+          }
+        </div>
+      </div>
+    }
+  </div>
+</section>

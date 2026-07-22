@@ -1,0 +1,31 @@
+.marquee-strip {
+  padding: 36px 0;
+  border-top: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee-row {
+  display: flex;
+  width: max-content;
+  gap: 14px;
+  animation: marquee 26s linear infinite;
+
+  @media (prefers-reduced-motion: reduce) {
+    animation: none;
+  }
+}
+
+.pill {
+  display: flex;
+  align-items: center;
+  padding: 10px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  font-family: var(--font-mono);
+  font-size: var(--text-mono);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+  flex: none;
+}

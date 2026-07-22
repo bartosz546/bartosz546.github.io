@@ -1,0 +1,16 @@
+export const TECH_STACK: string[] = [
+  'TypeScript',
+  'JavaScript',
+  '.NET',
+  'Node.js',
+  'Angular',
+  'React',
+  'SQL',
+  'Docker',
+  'Kubernetes',
+  'PixiJS',
+  'Ionic',
+  'Cordova',
+  'CI/CD',
+  'Git',
+];

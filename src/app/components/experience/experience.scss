@@ -1,0 +1,125 @@
+section {
+  max-width: var(--max-width-narrow);
+  margin: 0 auto;
+  padding: var(--space-section-y) var(--space-section-x);
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono);
+  color: var(--color-accent-teal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+
+h2 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: var(--text-h2);
+  letter-spacing: -0.03em;
+  margin: 0 0 64px;
+  color: var(--color-text-primary);
+
+  .muted { color: var(--color-text-muted); }
+}
+
+.reveal-heading, .entry {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.65s ease, transform 0.65s ease;
+
+  &.revealed {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    transition: none;
+  }
+}
+
+.timeline {
+  position: relative;
+  padding-left: 32px;
+}
+
+.track {
+  position: absolute;
+  left: 0;
+  top: 6px;
+  bottom: 6px;
+  width: 2px;
+  background: var(--color-border);
+}
+
+.fill {
+  width: 100%;
+  background: var(--color-accent-teal);
+  box-shadow: 0 0 12px var(--color-accent-teal);
+}
+
+.entry {
+  position: relative;
+  padding: 0 0 56px 28px;
+  margin-left: -2px;
+
+  .dot {
+    position: absolute;
+    left: -6px;
+    top: 6px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-bg);
+    border: 2px solid var(--color-accent-teal);
+  }
+
+  .meta {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono);
+    color: var(--color-text-muted);
+    margin: 0 0 8px;
+  }
+
+  h3 {
+    font-family: var(--font-heading);
+    font-size: 22px;
+    font-weight: 700;
+    margin: 0 0 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    flex-wrap: wrap;
+
+    .company {
+      color: var(--color-accent-teal);
+      font-size: 15px;
+      font-weight: 600;
+    }
+  }
+
+  .blurb {
+    font-family: var(--font-body);
+    color: var(--color-text-secondary);
+    max-width: 680px;
+    margin: 0 0 14px;
+    line-height: 1.6;
+  }
+
+  .tags {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: var(--text-mono-sm);
+    border-radius: var(--radius-pill);
+    background: oklch(1 0 0 / 0.06);
+    border: 1px solid oklch(1 0 0 / 0.07);
+    color: var(--color-text-secondary);
+    padding: 5px 10px;
+  }
+}

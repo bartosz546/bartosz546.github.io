@@ -1,0 +1,99 @@
+section {
+  max-width: var(--max-width-narrow);
+  margin: 0 auto;
+  padding: 140px 48px 60px;
+  text-align: center;
+  border-top: 1px solid var(--color-border-subtle);
+}
+
+.intro {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+
+  &.revealed { opacity: 1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce) { transition: none; }
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-mono);
+  color: var(--color-accent-teal);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0 0 14px;
+}
+
+h2 {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: var(--text-h2);
+  letter-spacing: -0.03em;
+  margin: 0 0 20px;
+  max-width: 780px;
+  margin-left: auto;
+  margin-right: auto;
+  color: var(--color-text-primary);
+}
+
+.subline {
+  font-size: 17px;
+  color: var(--color-text-secondary);
+  margin: 0 0 40px;
+}
+
+.cta-row {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 80px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 32px;
+  border-radius: var(--radius-button);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 15px;
+  text-decoration: none;
+}
+.btn-solid {
+  background: var(--color-accent-teal);
+  color: var(--color-bg);
+}
+.btn-outline {
+  background: transparent;
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+
+.footer-row {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 32px;
+  border-top: 1px solid var(--color-border-subtle);
+  font-size: 13px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.colophon {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  text-align: center;
+  line-height: 1.6;
+}
+
+@media (max-width: 991px) {
+  section { padding: 100px 24px 40px; }
+  .footer-row { flex-direction: column; text-align: center; }
+}
