@@ -68,6 +68,15 @@
 - Reviewer hand-traced the full loop and the hiding-phase math, confirmed correct sweep direction, no stuck/skipped phases, and confirmed the protected constants were untouched. Approved.
 - Tests/build: PASS (26/26 tests).
 
+## Task 14 — Hero background particle/node network (canvas) — COMPLETE
+- User request following a design discussion: canvas-based particle/node network behind the Hero section (drifting dots, distance-based connecting lines, cursor-reactive) to make a stronger first impression — chosen over cheaper alternatives (gradient mesh, code-rain) for its "systems/AI/engineering" read, at the cost of being the most implementation/perf-expensive option.
+- New `ParticleNetwork` plain-TS class (`src/app/components/hero/particle-network.ts`) encapsulating particle physics (wrap-around drift), O(n²) distance-based connection-line alpha, and rendering — kept separate from `Hero` so the physics/geometry math stays unit-testable without a real canvas context.
+- `Hero` drives it via a `requestAnimationFrame` loop wired into `ngAfterViewInit`/`ngOnDestroy`, reusing the existing tilt-related `onMouseMove`/`onMouseLeave` handlers for cursor-line interaction (no second mousemove listener). Canvas sized via `devicePixelRatio`, `aria-hidden="true"`, `pointer-events:none`, layered behind the existing orbs and content.
+- Respects `prefers-reduced-motion` (renders one static frame, no motion) and Page Visibility (pauses the rAF loop when the tab is hidden).
+- Reviewer found one non-trivial bug: reduced-motion was bypassed when a hidden tab became visible again (the resume branch didn't re-check the media query). Re-spawned developer: extracted a `shouldAnimate()` helper, gated the resume path on it, added tests exercising that exact regression. Also fixed two unrelated pre-existing stale test literals ("2 hours" vs the actual "4 hours" badge copy, apparently hand-edited outside this workflow) that were blocking a fully green suite.
+- Re-reviewed and approved. Tests/build: PASS (41/41 tests).
+- Live browser verification was limited this session: the tool's browser pane wasn't compositing at all (confirmed via `window.innerWidth` reporting 0 and a direct screenshot call failing with "the Browser pane is not displayed"), so on-screen canvas sizing couldn't be confirmed visually. Verified everything not dependent on real viewport dimensions instead (DOM structure, aria-hidden, pointer-events, z-index/layering, no console errors) — all correct. Recommended the user do a final visual check in their own browser.
+
 ## ALL TASKS COMPLETE
 All 11 tasks (1-11; infrastructure Task I1 was N/A — already on latest Angular) from prd.md are implemented, reviewed, tested, and logged. The Bartosz Kurek portfolio site (design-handoff spec) is fully built: Nav, Hero, TechMarquee, Experience, Stats, Projects, Contact — responsive, accessible (100/100 Lighthouse a11y), and performance-audited.
 

@@ -162,7 +162,7 @@ describe('Hero', () => {
       fixture.detectChanges();
 
       const fullText =
-        'This entire site was built in 2 hours — designed with Claude Code, translated to Angular, and published.';
+        'This entire site was built in 4 hours — designed with Claude Code, translated to Angular, and published.';
 
       // Immediately scrambled: same length, not equal to the real text.
       expect(hero.badgeText().length).toBe(fullText.length);
@@ -202,7 +202,7 @@ describe('Hero', () => {
       fixture.detectChanges();
 
       const fullText =
-        'This entire site was built in 2 hours — designed with Claude Code, translated to Angular, and published.';
+        'This entire site was built in 4 hours — designed with Claude Code, translated to Angular, and published.';
 
       // Reach "revealed": scrambled (1000ms) + revealing (1400ms).
       vi.advanceTimersByTime(2400 + 50);
@@ -254,6 +254,97 @@ describe('Hero', () => {
       const textAfterDestroy = hero.badgeText();
       vi.advanceTimersByTime(10000);
       expect(hero.badgeText()).toBe(textAfterDestroy);
+    });
+  });
+
+  describe('particle network canvas lifecycle', () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('ngAfterViewInit does not throw even when jsdom canvas getContext("2d") returns null', () => {
+      mockMatchMedia(false);
+      const fixture = TestBed.createComponent(Hero);
+
+      // Triggers ngOnInit + ngAfterViewInit. jsdom has no canvas package installed,
+      // so HTMLCanvasElement.getContext('2d') resolves to null here, exercising the guard.
+      expect(() => fixture.detectChanges()).not.toThrow();
+
+      const canvas: HTMLCanvasElement | null = fixture.nativeElement.querySelector('canvas.particle-canvas');
+      expect(canvas).toBeTruthy();
+
+      fixture.destroy();
+    });
+
+    it('ngOnDestroy (via fixture.destroy()) does not throw and removes window/document listeners', () => {
+      mockMatchMedia(false);
+      const removeWindowSpy = vi.spyOn(window, 'removeEventListener');
+      const removeDocSpy = vi.spyOn(document, 'removeEventListener');
+      const cancelAnimationFrameSpy = vi.spyOn(globalThis, 'cancelAnimationFrame');
+
+      const fixture = TestBed.createComponent(Hero);
+      fixture.detectChanges();
+
+      expect(() => fixture.destroy()).not.toThrow();
+
+      expect(removeWindowSpy).toHaveBeenCalledWith('resize', expect.any(Function));
+      expect(removeDocSpy).toHaveBeenCalledWith('visibilitychange', expect.any(Function));
+      // No rAF loop should have started since jsdom's 2D context is null (guarded),
+      // so cancelAnimationFrame is not required to fire, but the spy itself must exist
+      // and destroy() must remain safe to call regardless.
+      expect(cancelAnimationFrameSpy).toBeDefined();
+    });
+
+    it('shouldAnimate reflects the current prefers-reduced-motion setting', () => {
+      mockMatchMedia(false);
+      const fixture = TestBed.createComponent(Hero);
+      const hero = fixture.componentInstance as any;
+      expect(hero.shouldAnimate()).toBe(true);
+
+      mockMatchMedia(true);
+      expect(hero.shouldAnimate()).toBe(false);
+
+      fixture.destroy();
+    });
+
+    it('onVisibilityChange does not resume the rAF loop on becoming visible when prefers-reduced-motion is set', () => {
+      mockMatchMedia(true);
+      const fixture = TestBed.createComponent(Hero);
+      fixture.detectChanges();
+
+      const rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame');
+      const originalHiddenDescriptor = Object.getOwnPropertyDescriptor(Document.prototype, 'hidden');
+      Object.defineProperty(document, 'hidden', { configurable: true, get: () => false });
+
+      try {
+        (fixture.componentInstance as any).onVisibilityChange();
+        expect(rafSpy).not.toHaveBeenCalled();
+      } finally {
+        if (originalHiddenDescriptor) {
+          Object.defineProperty(Document.prototype, 'hidden', originalHiddenDescriptor);
+        }
+        delete (document as any).hidden;
+        fixture.destroy();
+      }
+    });
+
+    it('does not leave a dangling requestAnimationFrame loop running after destroy', () => {
+      mockMatchMedia(false);
+      const rafSpy = vi.spyOn(globalThis, 'requestAnimationFrame');
+
+      const fixture = TestBed.createComponent(Hero);
+      fixture.detectChanges();
+      fixture.destroy();
+
+      const callsBeforeWait = rafSpy.mock.calls.length;
+
+      // Give any stray scheduled frame a chance to fire; count must not grow after destroy.
+      return new Promise<void>((resolve) => {
+        setTimeout(() => {
+          expect(rafSpy.mock.calls.length).toBe(callsBeforeWait);
+          resolve();
+        }, 50);
+      });
     });
   });
 });

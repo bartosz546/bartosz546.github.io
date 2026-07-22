@@ -1,5 +1,6 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, signal, viewChild } from '@angular/core';
 import { NgOptimizedImage } from '@angular/common';
+import { ParticleNetwork } from './particle-network';
 
 @Component({
   selector: 'app-hero',
@@ -7,7 +8,7 @@ import { NgOptimizedImage } from '@angular/common';
   templateUrl: './hero.html',
   styleUrl: './hero.scss'
 })
-export class Hero implements OnInit, OnDestroy {
+export class Hero implements OnInit, AfterViewInit, OnDestroy {
   private static readonly CIPHER_CHARS = '!@#$%^&*_+-=<>?/0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
   private readonly badgeLead = 'This entire site was built in 4 hours';
@@ -20,14 +21,33 @@ export class Hero implements OnInit, OnDestroy {
   private phaseStartMs = 0;
 
   private readonly SCRAMBLED_DURATION_MS = 1000;
-  private readonly REVEALING_DURATION_MS = 1400;
+  private readonly REVEALING_DURATION_MS = 1200;
   private readonly REVEALED_DURATION_MS = 10000;
-  private readonly HIDDEN_HOLD_DURATION_MS = 5000;
+  private readonly HIDDEN_HOLD_DURATION_MS = 4000;
   private scrambledHoldMs = this.SCRAMBLED_DURATION_MS;
 
   protected readonly photoTransform = signal('rotateY(0deg) rotateX(0deg)');
   protected readonly orb1Transform = signal('translate(0px, 0px)');
   protected readonly orb2Transform = signal('translate(0px, 0px)');
+
+  private readonly canvasRef = viewChild<ElementRef<HTMLCanvasElement>>('particleCanvas');
+  private network?: ParticleNetwork;
+  private ctx?: CanvasRenderingContext2D | null;
+  private rafId?: number;
+  private lastFrameMs = 0;
+  private readonly onResize = () => this.setupCanvas();
+  private readonly onVisibilityChange = () => {
+    if (document.hidden) {
+      if (this.rafId !== undefined) cancelAnimationFrame(this.rafId);
+    } else if (this.shouldAnimate()) {
+      this.lastFrameMs = performance.now();
+      this.rafId = requestAnimationFrame(this.tick);
+    }
+  };
+
+  private shouldAnimate(): boolean {
+    return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  }
 
   protected onMouseMove(event: MouseEvent): void {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
@@ -38,12 +58,14 @@ export class Hero implements OnInit, OnDestroy {
     this.photoTransform.set(`rotateY(${x * 16}deg) rotateX(${-y * 16}deg)`);
     this.orb1Transform.set(`translate(${x * 30}px, ${y * 30}px)`);
     this.orb2Transform.set(`translate(${-x * 40}px, ${-y * 40}px)`);
+    this.network?.setCursor(event.clientX - rect.left, event.clientY - rect.top);
   }
 
   protected onMouseLeave(): void {
     this.photoTransform.set('rotateY(0deg) rotateX(0deg)');
     this.orb1Transform.set('translate(0px, 0px)');
     this.orb2Transform.set('translate(0px, 0px)');
+    this.network?.setCursor(null, null);
   }
 
   protected pickRandomChar(rng: () => number = Math.random): string {
@@ -71,10 +93,68 @@ export class Hero implements OnInit, OnDestroy {
     this.cipherIntervalId = setInterval(() => this.tickCipher(fullText), 50);
   }
 
+  ngAfterViewInit(): void {
+    this.setupCanvas();
+    window.addEventListener('resize', this.onResize);
+    document.addEventListener('visibilitychange', this.onVisibilityChange);
+  }
+
+  private setupCanvas(): void {
+    const canvas = this.canvasRef()?.nativeElement;
+    if (!canvas) return;
+
+    const rect = canvas.parentElement!.getBoundingClientRect();
+    const cssWidth = rect.width;
+    const cssHeight = rect.height;
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = cssWidth * dpr;
+    canvas.height = cssHeight * dpr;
+    canvas.style.width = cssWidth + 'px';
+    canvas.style.height = cssHeight + 'px';
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    ctx.scale(dpr, dpr);
+    this.ctx = ctx;
+
+    const isFirstSetup = !this.network;
+    if (!this.network) {
+      this.network = new ParticleNetwork(cssWidth, cssHeight);
+    } else {
+      this.network.resize(cssWidth, cssHeight);
+    }
+
+    if (!this.shouldAnimate()) {
+      this.network.render(this.ctx, cssWidth, cssHeight);
+      return;
+    }
+
+    if (isFirstSetup && !this.rafId) {
+      this.lastFrameMs = performance.now();
+      this.rafId = requestAnimationFrame(this.tick);
+    }
+  }
+
+  private readonly tick = (now: number) => {
+    const dt = now - this.lastFrameMs;
+    this.lastFrameMs = now;
+    if (!this.ctx || !this.network || !this.canvasRef()) return;
+    const canvas = this.canvasRef()!.nativeElement;
+    const dpr = window.devicePixelRatio || 1;
+    const cssWidth = canvas.width / dpr;
+    const cssHeight = canvas.height / dpr;
+    this.network.update(dt);
+    this.network.render(this.ctx, cssWidth, cssHeight);
+    this.rafId = requestAnimationFrame(this.tick);
+  };
+
   ngOnDestroy(): void {
     if (this.cipherIntervalId !== undefined) {
       clearInterval(this.cipherIntervalId);
     }
+    if (this.rafId !== undefined) cancelAnimationFrame(this.rafId);
+    window.removeEventListener('resize', this.onResize);
+    document.removeEventListener('visibilitychange', this.onVisibilityChange);
   }
 
   private tickCipher(fullText: string): void {

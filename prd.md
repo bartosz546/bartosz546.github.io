@@ -178,6 +178,19 @@ Behavior:
 - Respect `prefers-reduced-motion`: show the real text immediately with no cipher/scramble effect.
 - Implemented as an Angular standalone-component-idiomatic effect (signal-driven, not direct DOM string mutation via jQuery-style code), scoped to the Hero component — not a reusable directive/service unless that emerges naturally as the cleanest implementation.
 
+## Task 14 — Hero background particle/node network (canvas)
+
+Goal: a first-impression, "shows the workshop" background effect behind the Hero section — decided over simpler alternatives (gradient mesh, code-rain) specifically because it reads as systems/AI/engineering and is real generative motion, not a static decoration. Accepted tradeoff: highest implementation/perf cost of the options considered.
+
+Behavior:
+- A full-bleed `<canvas>` layer sits behind the Hero section's content (above the existing background orbs or replacing them — developer's call on visual layering, but must not reduce text legibility) rendering a sparse field of soft dots that drift slowly in random directions (wrap or gently bounce at edges, no jitter).
+- Thin lines are drawn between particles that are within a distance threshold of each other, with line opacity fading by distance (closer = more visible).
+- When the cursor is over the Hero section, nearby particles also draw a connecting line to the cursor position (reusing/extending the section's existing `(mousemove)`/`(mouseleave)` bindings already used for the photo-tilt/orb-parallax effect — do not add a second competing mousemove listener).
+- Visual restraint: low opacity, teal/muted palette consistent with existing tokens (`--color-accent-teal`, hairline-style opacity) — this is ambient texture behind the headline/CTAs, not a focal element.
+- Performance: single `requestAnimationFrame` loop, particle count scaled down on narrow viewports, pauses when the tab/page is hidden (Page Visibility API) and on `prefers-reduced-motion` (render either a static single frame of dots with no lines/motion, or skip the canvas entirely — developer's call, document the choice).
+- Canvas is `aria-hidden="true"` / `pointer-events: none` (purely decorative, must never block clicks on hero content or interfere with keyboard/screen-reader navigation).
+- Proper cleanup of the animation frame loop and any listeners in `ngOnDestroy`.
+
 ## Definition of done (per task)
 - Implementation matches this spec (pixel-for-pixel on visuals/copy/data, per Fidelity above).
 - Code reviewer findings resolved (non-trivial ones re-implemented).
