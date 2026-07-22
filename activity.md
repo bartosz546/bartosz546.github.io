@@ -91,6 +91,18 @@
 - Tests/build: PASS (41/41 tests).
 - Note: exact filter values (60%/0.85/1.05) are a reasonable starting point per the plan, but were not visually confirmed against the real images since screenshot capture wasn't available this session — flagged to the user to eyeball and request tuning if it reads as washed-out rather than intentional.
 
+## Task 17 — Tune thumbnail filter toward blue-tinted duotone — COMPLETE
+- User request: lean the Task 16 desaturation toward blue/navy rather than neutral gray, to better match the site's palette.
+- Since screenshots weren't available this session (same browser-pane compositing limitation as before), verified numerically instead: drew each of the 15 real thumbnails through candidate CSS filters on an offscreen canvas (`ctx.filter` supports the same syntax) and computed average HSL. First attempt (`grayscale(100%) sepia(60%) hue-rotate(180deg) saturate(300%) brightness(0.75) contrast(1.1)`) landed consistently on blue (~219° hue across all 15 images) but was fairly muted (~0.24 avg saturation). A lighter-grayscale alternative was rejected — letting original hues bleed through caused inconsistent per-image results (some cards read red/green instead of blue). Strengthened to `grayscale(100%) sepia(80%) hue-rotate(190deg) saturate(500%) brightness(0.7) contrast(1.1)`, confirmed via the same method to keep the consistent ~220-235° blue hue with ~45% higher saturation (~0.35 avg) — a clearly visible tint rather than near-gray, and reliably blue regardless of each thumbnail's original colors.
+- Reviewer approved but flagged (and I agree) that numeric HSL sampling confirms the mechanical claim (consistent blue hue, higher saturation) but can't judge overall aesthetic feel or how the new saturated blue sits next to the existing teal accent — recommended a human visual pass before fully signing off.
+- Tests/build: PASS (41/41 tests).
+
+## Task 18 — Retune thumbnail duotone from blue to teal accent hue — COMPLETE
+- User feedback: Task 17's blue duotone (avg hue ~231°) didn't fit the page's actual theme. Correctly identified that the site's real signature color is the teal/cyan accent (`--color-accent-teal`, oklch hue ~200) used everywhere — links, CTAs, eyebrows, corner brackets, particle network — not generic blue.
+- Numerically swept `hue-rotate` (150/160/165/170/175deg) via the same canvas-HSL-sampling method across all 15 real thumbnails to find the best match before implementing anything. `165deg` landed closest: average hue 201° (near-exact match to the teal token), tight 180-213° range (no drift into purple/blue/green on any image), ~0.56 avg saturation (clearly visible, not washed out).
+- Applied `hue-rotate(165deg)` (was 190deg), all other filter values (`sepia(80%)`, `saturate(500%)`, `brightness(0.7)`, `contrast(1.1)`) unchanged. Reviewer independently re-verified the value and the HSL/oklch hue-family reasoning. Confirmed live via computed style before/after.
+- Tests/build: PASS (41/41 tests).
+
 ## ALL TASKS COMPLETE
 All 11 tasks (1-11; infrastructure Task I1 was N/A — already on latest Angular) from prd.md are implemented, reviewed, tested, and logged. The Bartosz Kurek portfolio site (design-handoff spec) is fully built: Nav, Hero, TechMarquee, Experience, Stats, Projects, Contact — responsive, accessible (100/100 Lighthouse a11y), and performance-audited.
 
