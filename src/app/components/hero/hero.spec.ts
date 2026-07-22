@@ -193,7 +193,7 @@ describe('Hero', () => {
       expect(none).toBe('## #####');
     });
 
-    it('advances revealed -> hiding -> scrambled (with 5s hold) -> revealing without getting stuck', () => {
+    it('advances revealed -> hiding -> scrambled (with 4s hold) -> revealing without getting stuck', () => {
       mockMatchMedia(false);
       vi.useFakeTimers();
 
@@ -218,18 +218,18 @@ describe('Hero', () => {
       expect(hero.badgeText().length).toBe(fullText.length);
       expect(hero.badgeText()).not.toBe(fullText);
 
-      // Finish hiding (1400ms total) -> should land back in "scrambled" using the 5s hidden hold.
+      // Finish hiding (1400ms total) -> should land back in "scrambled" using the 4s hidden hold.
       vi.advanceTimersByTime(1400);
       expect(hero.phase).toBe('scrambled');
       expect(hero.scrambledHoldMs).toBe(hero.HIDDEN_HOLD_DURATION_MS);
-      expect(hero.scrambledHoldMs).toBe(5000);
+      expect(hero.scrambledHoldMs).toBe(4000);
 
-      // Confirm it stays scrambled before the 5s hold elapses...
-      vi.advanceTimersByTime(3000);
+      // Confirm it stays scrambled before the 4s hold elapses...
+      vi.advanceTimersByTime(2000);
       expect(hero.phase).toBe('scrambled');
 
-      // ...and transitions to "revealing" once the 5s hold elapses, eventually reaching "revealed" again.
-      vi.advanceTimersByTime(2000 + 50);
+      // ...and transitions to "revealing" once the 4s hold elapses, eventually reaching "revealed" again.
+      vi.advanceTimersByTime(1000 + 50);
       expect(hero.phase).toBe('revealing');
 
       vi.advanceTimersByTime(1400 + 50);

@@ -77,6 +77,13 @@
 - Re-reviewed and approved. Tests/build: PASS (41/41 tests).
 - Live browser verification was limited this session: the tool's browser pane wasn't compositing at all (confirmed via `window.innerWidth` reporting 0 and a direct screenshot call failing with "the Browser pane is not displayed"), so on-screen canvas sizing couldn't be confirmed visually. Verified everything not dependent on real viewport dimensions instead (DOM structure, aria-hidden, pointer-events, z-index/layering, no console errors) — all correct. Recommended the user do a final visual check in their own browser.
 
+## Task 15 — Projects card hover: HUD corner reticle + image micro-zoom — COMPLETE
+- Followed a design discussion where the user correctly pushed back on an earlier suggestion to reuse the cipher/scramble text effect on project card tags (risk: users naturally sweep the cursor across a 15-card grid while scanning, so a scramble-on-hover would repeatedly fight against fast readability). Landed on a trimmed, text-free alternative instead.
+- Added 4 static `<span class="corner corner-{tl,tr,bl,br}">` elements per card (pure CSS, no new component logic) that fade/slide in as teal L-shaped "reticle" brackets on hover, plus a clipped image micro-zoom (`scale(1.06)`, `overflow:hidden` on `.card-image` to prevent bleed into the text below). Both layer on top of the existing JS-driven tilt/shadow without conflicting. `prefers-reduced-motion` extended to zero out the new transitions too.
+- Reviewer verified corner orientation (no copy-paste L-shape mix-ups), confirmed no visual collision between the bottom corners and blurb text, and confirmed no bleed risk — approved with no code changes needed for Task 15 itself.
+- Along the way, reviewer caught a real (non-flaky, reproducible) but unrelated test failure: `hero.spec.ts` expected `HIDDEN_HOLD_DURATION_MS` to be 5000, but `hero.ts`'s actual value is 4000 — another instance of the user hand-tuning Hero's timing constants outside this workflow (same pattern as the "2 hours"/"4 hours" badge text and the reveal-phase durations in Task 14). Fixed the stale test to match reality, left `hero.ts` untouched, matching established precedent.
+- Tests/build: PASS (41/41 tests).
+
 ## ALL TASKS COMPLETE
 All 11 tasks (1-11; infrastructure Task I1 was N/A — already on latest Angular) from prd.md are implemented, reviewed, tested, and logged. The Bartosz Kurek portfolio site (design-handoff spec) is fully built: Nav, Hero, TechMarquee, Experience, Stats, Projects, Contact — responsive, accessible (100/100 Lighthouse a11y), and performance-audited.
 

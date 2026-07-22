@@ -191,6 +191,16 @@ Behavior:
 - Canvas is `aria-hidden="true"` / `pointer-events: none` (purely decorative, must never block clicks on hero content or interfere with keyboard/screen-reader navigation).
 - Proper cleanup of the animation frame loop and any listeners in `ngOnDestroy`.
 
+## Task 15 — Projects card hover personality: HUD corner reticle + image micro-zoom
+
+Goal: give the Projects cards (`src/app/components/projects/`) a bit more "systems/HUD" personality on hover, consistent with the site's identity established by the Hero's cipher text and particle network — without touching the tag/title/blurb TEXT itself. Explicitly rejected: scrambling/ciphering the card's tag text on hover, since users naturally sweep the cursor across a 15-card grid while scanning, and a text-scramble effect firing repeatedly during that scan would compete with the tags' actual job (fast scannability) rather than add personality.
+
+Behavior (pure CSS, no new JS/state — layers on top of the existing mousemove tilt/shadow, which stays unchanged):
+- Four small teal "reticle" corner brackets (L-shaped, like a camera viewfinder/selection frame) appear at the four corners of a card on hover: hidden/inset by default, sliding outward slightly while fading in to their resting corner position.
+- The card's cover image does a subtle scale-up (micro-zoom, e.g. ~1.05-1.08x) on hover, clipped to the image's own box so it never bleeds into the card's text area below.
+- Purely decorative — corner elements are `aria-hidden`/non-interactive, `pointer-events: none`, and don't affect the card's existing keyboard/DOM semantics.
+- Respect `prefers-reduced-motion`: corners and zoom still appear/disappear on hover (no animated transition needed to actually see them), just without the animated transition — consistent with this project's existing `prefers-reduced-motion` pattern of using `transition: none` rather than removing the hover state outright.
+
 ## Definition of done (per task)
 - Implementation matches this spec (pixel-for-pixel on visuals/copy/data, per Fidelity above).
 - Code reviewer findings resolved (non-trivial ones re-implemented).
