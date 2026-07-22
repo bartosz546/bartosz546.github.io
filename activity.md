@@ -84,6 +84,13 @@
 - Along the way, reviewer caught a real (non-flaky, reproducible) but unrelated test failure: `hero.spec.ts` expected `HIDDEN_HOLD_DURATION_MS` to be 5000, but `hero.ts`'s actual value is 4000 — another instance of the user hand-tuning Hero's timing constants outside this workflow (same pattern as the "2 hours"/"4 hours" badge text and the reveal-phase durations in Task 14). Fixed the stale test to match reality, left `hero.ts` untouched, matching established precedent.
 - Tests/build: PASS (41/41 tests).
 
+## Task 16 — Projects thumbnail desaturate-then-reveal-on-hover — COMPLETE
+- User's problem: the 15 project thumbnails (real screenshots/logos from disparate sources) clash visually with the site's dark navy/teal palette. Since recompressing/redesigning the actual image files is out of scope (no image-editing tools), addressed it with a CSS-only fix.
+- `projects.scss`: thumbnails now default to `filter: grayscale(60%) brightness(0.85) contrast(1.05)`, fading to full color (`filter: none`) on hover alongside the existing Task 15 zoom — reinforcing the reveal-on-interaction language used elsewhere (cipher text, scroll-reveals, tilt). Reused Task 15's existing `prefers-reduced-motion` rule (`transition: none` on the same selector) with no new selector needed.
+- Reviewer approved with no findings. Verified live in a working browser session this time (pane rendered correctly): confirmed the default filter is applied via computed styles and the hover rule (`filter: none`) is correctly registered in the compiled stylesheet.
+- Tests/build: PASS (41/41 tests).
+- Note: exact filter values (60%/0.85/1.05) are a reasonable starting point per the plan, but were not visually confirmed against the real images since screenshot capture wasn't available this session — flagged to the user to eyeball and request tuning if it reads as washed-out rather than intentional.
+
 ## ALL TASKS COMPLETE
 All 11 tasks (1-11; infrastructure Task I1 was N/A — already on latest Angular) from prd.md are implemented, reviewed, tested, and logged. The Bartosz Kurek portfolio site (design-handoff spec) is fully built: Nav, Hero, TechMarquee, Experience, Stats, Projects, Contact — responsive, accessible (100/100 Lighthouse a11y), and performance-audited.
 

@@ -201,6 +201,15 @@ Behavior (pure CSS, no new JS/state — layers on top of the existing mousemove 
 - Purely decorative — corner elements are `aria-hidden`/non-interactive, `pointer-events: none`, and don't affect the card's existing keyboard/DOM semantics.
 - Respect `prefers-reduced-motion`: corners and zoom still appear/disappear on hover (no animated transition needed to actually see them), just without the animated transition — consistent with this project's existing `prefers-reduced-motion` pattern of using `transition: none` rather than removing the hover state outright.
 
+## Task 16 — Projects thumbnail color unification (desaturate → reveal on hover)
+
+Goal: the 15 project thumbnails are real screenshots/logos from disparate sources (games, mobile apps, blockchain UIs) with inconsistent, often bright/saturated styling that clashes with the site's dark navy/teal "systems/HUD" palette. Since recompressing/redesigning the actual image files is out of scope (no image-editing tooling), fix this with a CSS-only treatment: thumbnails render desaturated/toned-down by default (unifying the grid into "one system" at rest) and reveal full color on hover, alongside the existing corner-bracket + zoom hover treatment from Task 15 — reinforcing the reveal-on-interaction language already used everywhere else on the site (cipher text, scroll-reveals, tilt).
+
+Behavior (pure CSS, layers on top of Task 15's `.card-image img` hover-zoom — no new component logic):
+- Default: thumbnail images are desaturated/dimmed (e.g. `filter: grayscale(~60%) brightness(~0.85) contrast(~1.05)` as a starting point — exact values need a live look to dial in so it reads as intentional/moody rather than broken/washed out).
+- On hover: filter fades back to normal color (`filter: none`) over the same kind of smooth transition already used for the zoom, so color and zoom animate together.
+- `prefers-reduced-motion`: filter/color still changes on hover, just without an animated transition (consistent with the project's established reduced-motion pattern elsewhere).
+
 ## Definition of done (per task)
 - Implementation matches this spec (pixel-for-pixel on visuals/copy/data, per Fidelity above).
 - Code reviewer findings resolved (non-trivial ones re-implemented).
