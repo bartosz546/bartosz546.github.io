@@ -232,6 +232,16 @@ Verbatim URLs (13 of 15 projects — `Hive Stone` and `To The Mars` have no URL 
 | Video Poker | https://video-poker-client.hiveslotgames.com/?steemAccountName=FUN_MODE_g9u1nt&funMode=true |
 | Blackjack | https://blackjack-client.hiveslotgames.com/?steemAccountName=FUN_MODE_g9u1nt&funMode=true |
 
+## Task 20 — Fix Hero badge layout shift during cipher animation
+
+Bug: the Hero badge (`src/app/components/hero/hero.html`, `.badge`) is `display: inline-flex` with no fixed dimensions, so its box shrinks/grows to fit whatever text is currently rendered. Since the cipher effect (Task 12/13) replaces characters with random glyphs from a proportional font every ~50ms, the rendered pixel width of same-length text segments fluctuates frame to frame, which can change word-wrap line breaks and therefore the badge's height — visibly "jumping" the page layout up and down, especially disruptive on narrow/mobile viewports where the badge already wraps across multiple lines.
+
+Fix:
+- Give the badge a fixed size (width/max-width and a locked height reserving enough lines for the real revealed text at typical viewport widths) so it never resizes during any cipher phase (scrambled, revealing, revealed, hiding).
+- The reserved size must comfortably fit the actual real text without truncation in normal operation.
+- As a safety net for the rare case where scrambled characters happen to render wide enough to need more lines than reserved: clip the overflow with a multi-line text-ellipsis truncation (CSS line-clamp — "hide the overflow with an ellipsis / 3 dots") rather than letting the box grow or wrapping further.
+- Needs live-in-browser tuning (real device widths, real font rendering) to pick the right line count / height per breakpoint — not just a value guessed from font-size arithmetic.
+
 ## Definition of done (per task)
 - Implementation matches this spec (pixel-for-pixel on visuals/copy/data, per Fidelity above).
 - Code reviewer findings resolved (non-trivial ones re-implemented).
